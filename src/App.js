@@ -1,15 +1,27 @@
 import logo from './logo.svg';
 import './App.css';
 import {useAuthContext} from "@stardust-platform/web-login";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {apikey} from "./data.js"
 import CreateOrder from './components/CreateOrder';
+import AllOrders from './components/AllOrders';
+
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link
+} from "react-router-dom";
+import NftDetail from './components/NftDetail';
+
 
 function App() {
-  
   const { user, handleOpenModal, isOpen, handleSignOut } = useAuthContext();
 
-  const loaddata = async () => {
+  const [allOrders, setAllOrders] = useState([]);
+
+  const loadAllOders = async () => {
     const options = {
       method: 'GET',
       headers: {
@@ -18,11 +30,12 @@ function App() {
       }
     };
     
-    console.log(options);
-
-    fetch('https://marketplace-api.stardust.gg/v1/balance/get', options)
+    fetch('https://marketplace-api.stardust.gg/v1/order/search', options)
       .then(response => response.json())
-      .then(response => console.log(response))
+      .then(response => {
+        setAllOrders(response.results)
+        // console.log(response.results);
+      })
       .catch(err => console.error(err));
 
 }
@@ -32,18 +45,22 @@ function App() {
 
     console.log(user);
     if (user!==undefined){
-      loaddata()
+      loadAllOders()
     }
   }, [user])
   
   return (
-    <div >
-      {/* <button onClick={() => handleOpenModal(!isOpen)}>Login</button> */}
+    <Router>
+      <button onClick={() => handleOpenModal(!isOpen)}>Login</button>
 
 
-      <CreateOrder />
+      <Routes>
+          <Route exact path="/" element={<AllOrders allOrders={allOrders} />}/>
+          <Route exact path="/createorder" element={<CreateOrder />} />
+          <Route path="/game/:gameid/item/:itemid/order/:orderid" element={<NftDetail />} />
+        </Routes>
      
-    </div>
+      </Router>
   );
 }
 
