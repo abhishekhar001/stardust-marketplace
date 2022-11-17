@@ -1,10 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
-import {useAuthContext} from "@stardust-platform/web-login";
 import { useEffect, useState } from 'react';
-import {apikey} from "./data.js"
-import CreateOrder from './components/CreateOrder';
-import AllOrders from './components/AllOrders';
+import AllOrders from './pages/AllOrders';
 
 
 import {
@@ -13,24 +10,27 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import NftDetail from './components/NftDetail';
+import NftDetail from './pages/NftDetail';
+import Header from './components/Header';
+import Login from './pages/Login';
+import Profile from './pages/Profile';
 
 
 function App() {
-  const { user, handleOpenModal, isOpen, handleSignOut } = useAuthContext();
-
   const [allOrders, setAllOrders] = useState([]);
+
+
 
   const loadAllOders = async () => {
     const options = {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: apikey
+        Authorization: localStorage.getItem("tokenid")
       }
     };
     
-    fetch('https://marketplace-api.stardust.gg/v1/order/search', options)
+    fetch('https://marketplace-api.stardust.gg/v1/order/search?currency=USDC&blockchain=polygon', options)
       .then(response => response.json())
       .then(response => {
         setAllOrders(response.results)
@@ -40,23 +40,21 @@ function App() {
 
 }
 
-
   useEffect(() => {
 
-    console.log(user);
-    if (user!==undefined){
-      loadAllOders()
+    if (localStorage.getItem("tokenid")){
+      loadAllOders();
     }
-  }, [user])
+  }, [localStorage.getItem("tokenid")])
   
   return (
     <Router>
-      <button onClick={() => handleOpenModal(!isOpen)}>Login</button>
 
-
+      <Header/>
       <Routes>
           <Route exact path="/" element={<AllOrders allOrders={allOrders} />}/>
-          <Route exact path="/createorder" element={<CreateOrder />} />
+          <Route exact path="/login" element={<Login/> } />
+          <Route exact path="/profile" element={<Profile/>}/>
           <Route path="/game/:gameid/item/:itemid/order/:orderid" element={<NftDetail />} />
         </Routes>
      

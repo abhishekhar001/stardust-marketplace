@@ -20,7 +20,7 @@ export default function AllOrders({allOrders}) {
         {allOrders.length !== 0 &&
         allOrders.map((order,key)=>{
             return(
-                <Link to={`/game/${order.game.id}/item/${order.template.id}/order/${order.id}`}>
+                <Link key={key} to={`/game/${order.game.id}/item/${order.template.id}/order/${order.id}`}>
                 <div className="" style={{border:"1px solid black",margin:"4px", padding:"2px",textAlign:"center"}}>
                     <img width="200px" height="200px"  src={order.template.image} alt="order image" />
                     <div className="">

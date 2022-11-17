@@ -3,11 +3,8 @@ import React, { useEffect, useState } from 'react'
 import {
     useParams
   } from "react-router-dom";
+// import { gameId } from '../data';
 
-  import {apikey} from '../data';
-
-
-  import {useAuthContext} from "@stardust-platform/web-login";
 
 
 export default function NftDetail() {
@@ -15,8 +12,37 @@ export default function NftDetail() {
     let { gameid, itemid,orderid } = useParams();
     const [itemData, setItemData] = useState(null);
 
+    const [optionAfterBuy, setOptionAfterBuy] = useState({"result":false,"success":false,"message":""});
 
     const buyButtonHandler = () => {
+
+        
+        const _buy = window.confirm("are you sure you want to buy");
+        if (_buy) {
+            
+            const options = {
+                method: 'POST',
+                headers: {
+                  accept: 'application/json',
+                  'content-type': 'application/json',
+                  Authorization:localStorage.getItem("tokenid")
+                },
+                body: JSON.stringify({gameId: Number(gameid), orderId: Number(orderid)})
+              };
+              
+              fetch('https://marketplace-api.stardust.gg/v1/order/buy', options)
+                .then(response => response.json())
+                .then(response => {
+                    if (response?.success === true) {
+                        setOptionAfterBuy({"result":true,"success":true,"message":"Succefully purchased nft"});
+                    } else {
+                        setOptionAfterBuy({"result":true,"success":false,"message":response.message});
+                    }
+                }
+                    
+                    )
+                .catch(err => console.error(err));
+    }
 
     }
 
@@ -26,7 +52,7 @@ export default function NftDetail() {
             method: 'GET',
             headers: {
               accept: 'application/json',
-              Authorization: apikey
+              Authorization: localStorage.getItem("tokenid")
             }
           };
           
@@ -76,6 +102,12 @@ export default function NftDetail() {
                             <p>available for sale: {itemData.token.amount}</p>
                         <button onClick={() => buyButtonHandler()}
                         >Buy Now</button>
+
+                        { optionAfterBuy?.result&&
+                            <div className="">
+                        <p>{optionAfterBuy.message}</p>
+                        </div>
+                        }
         </div>
 
         <hr />
