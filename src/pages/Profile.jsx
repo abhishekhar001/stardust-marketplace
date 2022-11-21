@@ -32,7 +32,7 @@ export default function Profile() {
     const sellNft = (NftTokenid,amount,gameid) => {
         const _price = prompt("price in usdc")
         
-        const _sell = window.confirm("Are you sure you want to sell this nft id");
+        const _sell = window.confirm("Are you want to sell as fix price?");
         if (_sell) {
             console.log(NftTokenid,amount,gameid,_price);
 
@@ -64,6 +64,40 @@ export default function Profile() {
 
                 })
                 .catch(err => console.error(err));
+        } else {
+
+          const options = {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              'content-type': 'application/json',
+              Authorization: localStorage.getItem("tokenid")
+            },
+            body: JSON.stringify({
+              endDate: new Date("2 December, 2022").toUTCString(),
+              tokenId: Number(NftTokenid),
+              currency: 'USDC',
+              startPrice: _price.toString(),
+              itemQuantity: '1',
+              itemType: 'auction for testing'
+            })
+          };
+          
+          fetch('https://marketplace-api.stardust.gg/v1/auction/create', options)
+            .then(response => response.json())
+            .then(response => {
+              console.log(response);
+
+              if (response?.id) {
+                  setsellStatus({result:true,message:`nft put on sell, succefully on auction with id ${response.id}`})
+              } else {
+                  setsellStatus({result:true,message:response?.message})
+              }
+
+            })
+            .catch(err => console.error(err));
+
+
         }
     }
     
